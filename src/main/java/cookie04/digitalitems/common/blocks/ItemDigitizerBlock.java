@@ -39,12 +39,13 @@ import java.util.Optional;
 public class ItemDigitizerBlock extends Block {
     public ItemDigitizerBlock() {
         super(
-                Properties.create(Material.IRON)
+            Properties.create(Material.IRON)
                 .sound(SoundType.METAL)
                 .hardnessAndResistance(2.0f)
                 .setRequiresTool()
                 .harvestTool(ToolType.PICKAXE)
-                .harvestLevel(1));
+                .harvestLevel(1)
+        );
     }
 
     @Nonnull

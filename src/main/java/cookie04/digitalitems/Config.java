@@ -8,7 +8,7 @@ public class Config {
 
     public static ForgeConfigSpec.IntValue ITEM_DIGITIZER_POWER_MAX;
     public static ForgeConfigSpec.IntValue ITEM_DIGITIZER_DIGITIZE_COST;
-    public static ForgeConfigSpec.IntValue ITEM_DIGITIZER_REMATERIALISE_COST;
+    public static ForgeConfigSpec.IntValue ITEM_DIGITIZER_REMATERIALIZE_COST;
     public static ForgeConfigSpec.IntValue ITEM_DIGITIZER_CHECK_COST;
     public static ForgeConfigSpec.BooleanValue ITEM_DIGITIZER_POWER_ENABLED;
 
@@ -32,7 +32,7 @@ public class Config {
         ITEM_DIGITIZER_DIGITIZE_COST = SERVER_BUILDER
             .comment("Power usage for the item digitizer to digitize an item stack")
             .defineInRange("digitizeCost", 20, 0, Integer.MAX_VALUE);
-        ITEM_DIGITIZER_REMATERIALISE_COST = SERVER_BUILDER
+        ITEM_DIGITIZER_REMATERIALIZE_COST = SERVER_BUILDER
             .comment("Power usage for the item digitizer to rematerialize an item stack")
             .defineInRange("rematerializeCost", 20, 0, Integer.MAX_VALUE);
         ITEM_DIGITIZER_CHECK_COST = SERVER_BUILDER

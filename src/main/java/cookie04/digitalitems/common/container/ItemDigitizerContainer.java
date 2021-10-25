@@ -34,7 +34,8 @@ public class ItemDigitizerContainer extends Container {
         this.playerInventory = new InvWrapper(playerInventory);
 
         if (tileEntity != null) {
-            tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY).ifPresent(h -> addSlot(new SlotItemHandler(h, 0, 80, 35)));
+            tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+                .ifPresent(h -> addSlot(new SlotItemHandler(h, 0, 80, 35)));
         }
         layoutPlayerInventorySlots();
         trackPower();
@@ -42,7 +43,8 @@ public class ItemDigitizerContainer extends Container {
 
     @Override
     public boolean canInteractWith(@Nonnull PlayerEntity playerIn) {
-        return isWithinUsableDistance(IWorldPosCallable.of(Objects.requireNonNull(tileEntity.getWorld()), tileEntity.getPos()), playerEntity, Registration.ITEM_DIGITIZER_BLOCK.get());
+        return isWithinUsableDistance(IWorldPosCallable.of(Objects.requireNonNull(tileEntity.getWorld()),
+                tileEntity.getPos()), playerEntity, Registration.ITEM_DIGITIZER_BLOCK.get());
     }
 
     @Nonnull
@@ -117,8 +119,8 @@ public class ItemDigitizerContainer extends Container {
     }
 
     private void trackPower() {
-        // Unfortunatelly on a dedicated server ints are actually truncated to short so we need
-        // to split our integer here (split our 32 bit integer into two 16 bit integers)
+        // Unfortunately on a dedicated server ints are actually truncated to short, so we need
+        // to split our integer here (split our 32-bit integer into two 16-bit integers)
         trackInt(new IntReferenceHolder() {
             @Override
             public int get() {
@@ -127,6 +129,7 @@ public class ItemDigitizerContainer extends Container {
 
             @Override
             public void set(int value) {
+                assert tileEntity != null;
                 tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(h -> {
                     int energyStored = h.getEnergyStored() & 0xffff0000;
                     ((OwnEnergy)h).setEnergy(energyStored + (value & 0xffff));
@@ -141,6 +144,7 @@ public class ItemDigitizerContainer extends Container {
 
             @Override
             public void set(int value) {
+                assert tileEntity != null;
                 tileEntity.getCapability(CapabilityEnergy.ENERGY).ifPresent(h -> {
                     int energyStored = h.getEnergyStored() & 0x0000ffff;
                     ((OwnEnergy)h).setEnergy(energyStored | (value << 16));

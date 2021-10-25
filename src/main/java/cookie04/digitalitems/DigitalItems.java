@@ -3,7 +3,6 @@ package cookie04.digitalitems;
 import cookie04.digitalitems.client.SetupClient;
 import cookie04.digitalitems.common.NBTSaver;
 import dan200.computercraft.api.ComputerCraftAPI;
-import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.TileEntity;
@@ -24,7 +23,7 @@ import java.util.Map;
 @Mod(DigitalItems.MOD_ID)
 public class DigitalItems {
     public static final String MOD_ID = "digitalitems";
-    public static HashMap<Integer, CompoundNBT> digital_items = new HashMap<>();
+    public static HashMap<String, CompoundNBT> digital_items = new HashMap<>();
     public static final SecureRandom random = new SecureRandom();
     public DigitalItems() {
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.SERVER_CONFIG);
@@ -57,7 +56,7 @@ public class DigitalItems {
         }
         CompoundNBT items = saver.data.getCompound("items");
         for (String key : items.keySet()) {
-            digital_items.put(Integer.parseInt(key), items.getCompound(key));
+            digital_items.put(key, items.getCompound(key));
         }
     }
 
@@ -69,18 +68,19 @@ public class DigitalItems {
         NBTSaver saver = NBTSaver.get((ServerWorld)world);
         CompoundNBT data = new CompoundNBT();
         CompoundNBT items = new CompoundNBT();
-        for (Map.Entry<Integer, CompoundNBT> entry : digital_items.entrySet()) {
-            items.put(entry.getKey().toString(), entry.getValue());
+        for (Map.Entry<String, CompoundNBT> entry : digital_items.entrySet()) {
+            items.put(entry.getKey(), entry.getValue());
         }
         data.put("items", items);
         saver.data = data;
         saver.markDirty();
     }
 
-    public static int doubleWholeCheck(double d, String errorMsg) throws LuaException {
-        if (Math.floor(d) == d) {
-            return (int)d;
-        }
-        throw new LuaException(errorMsg);
+    public static String randomString(int length) {
+        return random.ints(48, 123)
+            .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+            .limit(length)
+            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+            .toString();
     }
 }

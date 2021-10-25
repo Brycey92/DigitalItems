@@ -6,7 +6,6 @@ import cookie04.digitalitems.common.luameta.LuaItem;
 import cookie04.digitalitems.common.tileentities.ItemDigitizerTileEntity;
 import dan200.computercraft.api.lua.LuaException;
 import dan200.computercraft.api.lua.LuaFunction;
-import dan200.computercraft.api.peripheral.IComputerAccess;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
@@ -15,6 +14,7 @@ import net.minecraftforge.items.IItemHandler;
 
 import javax.annotation.Nonnull;
 import java.util.Map;
+import java.util.Optional;
 
 public class ItemDigitizerPeripheral implements IPeripheral {
     private final ItemDigitizerTileEntity tileEntity;
@@ -41,32 +41,17 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     }
 
     @Override
-    public void attach(@Nonnull IComputerAccess computer) {
-    }
-
-    @Override
-    public void detach(@Nonnull IComputerAccess computer) {
-    }
-
-    @Override
     public boolean equals(IPeripheral iPeripheral) {
         return iPeripheral == this;
     }
 
-    /**
-     * Digitizes an item.
-     *
-     * @return The id of the item that was digitized
-     * @throws LuaException If theres no item in the digitizer or there's not enough power
-     */
     @LuaFunction
-    public final double digitize() throws LuaException {
+    public final String digitize() throws LuaException {
         updateInfo();
-        if (itemStack.isEmpty()) {
+        if (itemStack.isEmpty())
             throw new LuaException("No item to digitize");
-        }
+
         if (powerEnabled) {
-            System.out.println("Power enabled");
             int digitizeCost = Config.ITEM_DIGITIZER_DIGITIZE_COST.get();
             if (energy.extractEnergy(digitizeCost, true) != digitizeCost) {
                 throw new LuaException("Not enough energy to digitize, requires at least: " + digitizeCost);
@@ -74,88 +59,69 @@ public class ItemDigitizerPeripheral implements IPeripheral {
                 energy.extractEnergy(digitizeCost, false);
             }
         }
-        int random;
+
+        String key;
         do {
-            random = DigitalItems.random.nextInt();
-        } while (DigitalItems.digital_items.containsKey(random));
-        DigitalItems.digital_items.put(random, itemStack.serializeNBT());
+            key = DigitalItems.randomString(10);
+        } while (DigitalItems.digital_items.containsKey(key));
+        DigitalItems.digital_items.put(key, itemStack.serializeNBT());
         handler.extractItem(0, itemStack.getCount(), false);
-        return random;
+        return key;
     }
 
-    /**
-     * Rematerializes an item.
-     *
-     * @param itemID The ID of the item to be rematerialized.
-     * @throws LuaException If the ID is not a whole number or invalid or the digitizer is not empty and the two item stacks can't be merged.
-     */
     @LuaFunction
-    public final void rematerialize(double itemID) throws LuaException {
+    public final void materialize(String itemKey) throws LuaException {
         updateInfo();
-        int intID = DigitalItems.doubleWholeCheck(itemID, "Expected the itemID to be a whole number");
-        if (!DigitalItems.digital_items.containsKey(intID)) {
-            throw new LuaException("Invalid itemID");
-        }
+        if (!DigitalItems.digital_items.containsKey(itemKey))
+            throw new LuaException("Invalid item key");
+
         if (powerEnabled) {
-            int rematerializeCost = Config.ITEM_DIGITIZER_REMATERIALISE_COST.get();
+            int rematerializeCost = Config.ITEM_DIGITIZER_REMATERIALIZE_COST.get();
             if (energy.extractEnergy(rematerializeCost, true) != rematerializeCost) {
                 throw new LuaException("Not enough energy to rematerialize, requires at least: " + rematerializeCost);
             } else {
                 energy.extractEnergy(rematerializeCost, false);
             }
         }
-        CompoundNBT nbt = DigitalItems.digital_items.get(intID);
+        CompoundNBT nbt = DigitalItems.digital_items.get(itemKey);
         ItemStack insert = handler.insertItem(0, ItemStack.read(nbt), true);
-        if (insert.getCount() != 0) {
+        if (insert.getCount() != 0)
             throw new LuaException("Digitizer not empty and can't merge items");
-        }
+
         handler.insertItem(0, ItemStack.read(nbt), false);
-        DigitalItems.digital_items.remove(intID);
+        DigitalItems.digital_items.remove(itemKey);
     }
 
-    /**
-     * Gets information about the item stack currently in the digitizer.
-     *
-     * @return The table containing the information about the item stack or null, if theres no item stack there.
-     * @throws LuaException If there is not enough energy to get the item info.
-     */
     @LuaFunction
-    public final Map<String, Object> data() throws LuaException {
-        ItemStack stack = handler.getStackInSlot(0);
-        if (stack.isEmpty()) {
-            return null;
-        }
-        if (powerEnabled) {
-            int checkCost = Config.ITEM_DIGITIZER_REMATERIALISE_COST.get();
-            if (energy.extractEnergy(checkCost, true) != checkCost) {
-                throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
-            } else {
-                energy.extractEnergy(checkCost, false);
-            }
-        }
-        return LuaItem.get(stack);
-    }
+    public final Map<String, Object> getInfo(Optional<String> itemKey) throws LuaException {
+        if (itemKey.isPresent()) {
+            if (!DigitalItems.digital_items.containsKey(itemKey))
+                throw new LuaException("Invalid item key");
 
-    /**
-     * Gets information about an item stack from it's itemID.
-     * @param itemID The itemID
-     * @return The table containing the information about the item stack.
-     * @throws LuaException If the itemID is not a whole number or invalid.
-     */
-    @LuaFunction
-    public final Map<String, Object> dataID(double itemID) throws LuaException {
-        int intID = DigitalItems.doubleWholeCheck(itemID, "Expected the itemID to be a whole number");
-        if (!DigitalItems.digital_items.containsKey(intID)) {
-            throw new LuaException("Invalid itemID");
-        }
-        if (powerEnabled) {
-            int checkCost = Config.ITEM_DIGITIZER_CHECK_COST.get();
-            if (energy.extractEnergy(checkCost, true) != checkCost) {
-                throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
-            } else {
-                energy.extractEnergy(checkCost, false);
+            if (powerEnabled) {
+                int checkCost = Config.ITEM_DIGITIZER_CHECK_COST.get();
+                if (energy.extractEnergy(checkCost, true) != checkCost) {
+                    throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
+                } else {
+                    energy.extractEnergy(checkCost, false);
+                }
             }
+            return LuaItem.get(ItemStack.read(DigitalItems.digital_items.get(itemKey)));
+        } else {
+            updateInfo();
+            ItemStack stack = handler.getStackInSlot(0);
+            if (stack.isEmpty())
+                return null;
+
+            if (powerEnabled) {
+                int checkCost = Config.ITEM_DIGITIZER_REMATERIALIZE_COST.get();
+                if(energy.extractEnergy(checkCost, true) != checkCost) {
+                    throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
+                } else {
+                    energy.extractEnergy(checkCost, false);
+                }
+            }
+            return LuaItem.get(stack);
         }
-        return LuaItem.get(ItemStack.read(DigitalItems.digital_items.get(intID)));
     }
 }
