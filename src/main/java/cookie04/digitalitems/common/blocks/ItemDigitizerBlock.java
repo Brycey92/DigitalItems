@@ -99,25 +99,11 @@ public class ItemDigitizerBlock extends Block {
     public void onBlockPlacedBy(@Nonnull World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state, LivingEntity placer, @Nonnull ItemStack stack) {
         super.onBlockPlacedBy(worldIn, pos, state, placer, stack);
         TileEntity tileEntity = worldIn.getTileEntity(pos);
-        if(tileEntity instanceof ItemDigitizerTileEntity) {
+        if (tileEntity instanceof ItemDigitizerTileEntity) {
             ItemDigitizerTileEntity itemDigitizerTileEntity = (ItemDigitizerTileEntity) tileEntity;
             itemDigitizerTileEntity.update();
         }
     }
-
-    /*@Override
-    @SuppressWarnings("deprecated")
-    public void onReplaced(BlockState state, @Nonnull World worldIn, @Nonnull BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.isIn(newState.getBlock())) {
-            TileEntity tileentity = worldIn.getTileEntity(pos);
-            if (tileentity instanceof ItemDigitizerTileEntity) {
-                Optional<IItemHandler> optional = ((ItemDigitizerTileEntity)tileentity).handler.resolve();
-                assert optional.isPresent();
-                InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), optional.get().getStackInSlot(0));
-                InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), Registration.ITEM_DIGITIZER_BLOCK_ITEM.get().getDefaultInstance());
-            }
-        }
-    }*/
 
     @Override
     public void onBlockHarvested(World worldIn, @Nonnull BlockPos pos, @Nonnull BlockState state, @Nonnull PlayerEntity player) {
@@ -126,7 +112,7 @@ public class ItemDigitizerBlock extends Block {
             Optional<IItemHandler> optional = ((ItemDigitizerTileEntity)tileentity).handler.resolve();
             assert optional.isPresent();
             InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), optional.get().getStackInSlot(0));
-            if(!player.isCreative())
+            if (!player.isCreative())
                 InventoryHelper.spawnItemStack(worldIn, pos.getX(), pos.getY(), pos.getZ(), Registration.ITEM_DIGITIZER_BLOCK_ITEM.get().getDefaultInstance());
         }
     }

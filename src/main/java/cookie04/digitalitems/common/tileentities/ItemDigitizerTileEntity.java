@@ -89,7 +89,7 @@ public class ItemDigitizerTileEntity extends TileEntity implements ITickableTile
         if (cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
             return handler.cast();
         }
-        if(cap == Registration.PERIPHERAL_CAPABILITY) {
+        if (cap == Registration.PERIPHERAL_CAPABILITY) {
             return (LazyOptional<T>) peripheral;
         }
         if (cap == CapabilityEnergy.ENERGY) {
@@ -109,42 +109,42 @@ public class ItemDigitizerTileEntity extends TileEntity implements ITickableTile
     @Override
     public void tick() {
         assert world != null;
-        if(world.isRemote) {
+        if (world.isRemote) {
             return;
         }
         update();
     }
     public void update() {
-        if(Config.ITEM_DIGITIZER_POWER_ENABLED.get()) {
+        if (Config.ITEM_DIGITIZER_POWER_ENABLED.get()) {
             acceptPower();
         }
         ItemDigitizerTileEntity entity = (ItemDigitizerTileEntity) getTileEntity();
         assert world != null;
         BlockState state = world.getBlockState(pos);
         boolean powered = entity.energyStorage.getEnergyStored() > 0;
-        if(state.get(BlockStateProperties.POWERED) != powered) {
+        if (state.get(BlockStateProperties.POWERED) != powered) {
             world.setBlockState(pos, state.with(BlockStateProperties.POWERED, powered));
         }
     }
 
     private void acceptPower() {
         AtomicInteger energy = new AtomicInteger(energyStorage.getEnergyStored());
-        if(energyStorage.getMaxEnergyStored() <= energy.get()) {
+        if (energyStorage.getMaxEnergyStored() <= energy.get()) {
             return;
         }
-        for(Direction direction : Direction.values()) {
+        for (Direction direction : Direction.values()) {
             assert world != null;
             TileEntity te = world.getTileEntity(pos.offset(direction));
-            if(te == null) {
+            if (te == null) {
                 continue;
             }
             LazyOptional<IEnergyStorage> lazyOptional =  te.getCapability(CapabilityEnergy.ENERGY, direction);
-            if(!lazyOptional.isPresent()) {
+            if (!lazyOptional.isPresent()) {
                 continue;
             }
-            assert(lazyOptional.resolve().isPresent());
+            assert (lazyOptional.resolve().isPresent());
             IEnergyStorage externalEnergyStorage = lazyOptional.resolve().get();
-            if(!externalEnergyStorage.canExtract()) {
+            if (!externalEnergyStorage.canExtract()) {
                 continue;
             }
             int extracted = externalEnergyStorage.extractEnergy(energyStorage.getMaxEnergyStored() - energy.get(), false);
@@ -152,7 +152,7 @@ public class ItemDigitizerTileEntity extends TileEntity implements ITickableTile
             int energyNow = energyStorage.getEnergyStored();
             energy.set(energyNow);
             markDirty();
-            if(energyNow >= energyStorage.getMaxEnergyStored()) {
+            if (energyNow >= energyStorage.getMaxEnergyStored()) {
                 break;
             }
         }

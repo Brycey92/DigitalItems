@@ -28,7 +28,7 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     boolean powerEnabled;
 
     private void updateInfo() {
-        assert(tileEntity.energy.resolve().isPresent() && tileEntity.handler.resolve().isPresent());
+        assert (tileEntity.energy.resolve().isPresent() && tileEntity.handler.resolve().isPresent());
         energy = tileEntity.energy.resolve().get();
         handler = tileEntity.handler.resolve().get();
         itemStack = handler.getStackInSlot(0);
@@ -62,13 +62,13 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     @LuaFunction
     public final double digitize() throws LuaException {
         updateInfo();
-        if(itemStack.isEmpty()) {
+        if (itemStack.isEmpty()) {
             throw new LuaException("No item to digitize");
         }
-        if(powerEnabled) {
+        if (powerEnabled) {
             System.out.println("Power enabled");
             int digitizeCost = Config.ITEM_DIGITIZER_DIGITIZE_COST.get();
-            if(energy.extractEnergy(digitizeCost, true) != digitizeCost) {
+            if (energy.extractEnergy(digitizeCost, true) != digitizeCost) {
                 throw new LuaException("Not enough energy to digitize, requires at least: " + digitizeCost);
             } else {
                 energy.extractEnergy(digitizeCost, false);
@@ -77,7 +77,7 @@ public class ItemDigitizerPeripheral implements IPeripheral {
         int random;
         do {
             random = DigitalItems.random.nextInt();
-        } while(DigitalItems.digital_items.containsKey(random));
+        } while (DigitalItems.digital_items.containsKey(random));
         DigitalItems.digital_items.put(random, itemStack.serializeNBT());
         handler.extractItem(0, itemStack.getCount(), false);
         return random;
@@ -93,12 +93,12 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     public final void rematerialize(double itemID) throws LuaException {
         updateInfo();
         int intID = DigitalItems.doubleWholeCheck(itemID, "Expected the itemID to be a whole number");
-        if(!DigitalItems.digital_items.containsKey(intID)) {
+        if (!DigitalItems.digital_items.containsKey(intID)) {
             throw new LuaException("Invalid itemID");
         }
-        if(powerEnabled) {
+        if (powerEnabled) {
             int rematerializeCost = Config.ITEM_DIGITIZER_REMATERIALISE_COST.get();
-            if(energy.extractEnergy(rematerializeCost, true) != rematerializeCost) {
+            if (energy.extractEnergy(rematerializeCost, true) != rematerializeCost) {
                 throw new LuaException("Not enough energy to rematerialize, requires at least: " + rematerializeCost);
             } else {
                 energy.extractEnergy(rematerializeCost, false);
@@ -106,7 +106,7 @@ public class ItemDigitizerPeripheral implements IPeripheral {
         }
         CompoundNBT nbt = DigitalItems.digital_items.get(intID);
         ItemStack insert = handler.insertItem(0, ItemStack.read(nbt), true);
-        if(insert.getCount() != 0) {
+        if (insert.getCount() != 0) {
             throw new LuaException("Digitizer not empty and can't merge items");
         }
         handler.insertItem(0, ItemStack.read(nbt), false);
@@ -122,12 +122,12 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     @LuaFunction
     public final Map<String, Object> data() throws LuaException {
         ItemStack stack = handler.getStackInSlot(0);
-        if(stack.isEmpty()) {
+        if (stack.isEmpty()) {
             return null;
         }
-        if(powerEnabled) {
+        if (powerEnabled) {
             int checkCost = Config.ITEM_DIGITIZER_REMATERIALISE_COST.get();
-            if(energy.extractEnergy(checkCost, true) != checkCost) {
+            if (energy.extractEnergy(checkCost, true) != checkCost) {
                 throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
             } else {
                 energy.extractEnergy(checkCost, false);
@@ -145,12 +145,12 @@ public class ItemDigitizerPeripheral implements IPeripheral {
     @LuaFunction
     public final Map<String, Object> dataID(double itemID) throws LuaException {
         int intID = DigitalItems.doubleWholeCheck(itemID, "Expected the itemID to be a whole number");
-        if(!DigitalItems.digital_items.containsKey(intID)) {
+        if (!DigitalItems.digital_items.containsKey(intID)) {
             throw new LuaException("Invalid itemID");
         }
-        if(powerEnabled) {
+        if (powerEnabled) {
             int checkCost = Config.ITEM_DIGITIZER_CHECK_COST.get();
-            if(energy.extractEnergy(checkCost, true) != checkCost) {
+            if (energy.extractEnergy(checkCost, true) != checkCost) {
                 throw new LuaException("Not enough energy to check, requires at least: " + checkCost);
             } else {
                 energy.extractEnergy(checkCost, false);

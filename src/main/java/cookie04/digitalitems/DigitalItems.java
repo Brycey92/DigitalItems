@@ -32,11 +32,11 @@ public class DigitalItems {
         FMLJavaModLoadingContext.get().getModEventBus().addListener(SetupClient::init);
         ComputerCraftAPI.registerPeripheralProvider(((world, blockPos, direction) -> {
             TileEntity te = world.getTileEntity(blockPos);
-            if(te == null) {
+            if (te == null) {
                 return LazyOptional.empty();
             }
             LazyOptional<IPeripheral> capabilityLazyOptional = te.getCapability(Registration.PERIPHERAL_CAPABILITY);
-            if(capabilityLazyOptional.isPresent()){
+            if (capabilityLazyOptional.isPresent()){
                 return capabilityLazyOptional;
             }
             return LazyOptional.empty();
@@ -47,29 +47,29 @@ public class DigitalItems {
 
     public void onWorldLoaded(WorldEvent.Load event) {
         IWorld world = event.getWorld();
-        if(world.isRemote() || !(world instanceof ServerWorld)) {
+        if (world.isRemote() || !(world instanceof ServerWorld)) {
             return;
         }
         digital_items = new HashMap<>();
         NBTSaver saver = NBTSaver.get((ServerWorld)world);
-        if(!saver.data.contains("items")) {
+        if (!saver.data.contains("items")) {
             return;
         }
         CompoundNBT items = saver.data.getCompound("items");
-        for(String key : items.keySet()) {
+        for (String key : items.keySet()) {
             digital_items.put(Integer.parseInt(key), items.getCompound(key));
         }
     }
 
     public void onWorldSaved(WorldEvent.Save event) {
         IWorld world = event.getWorld();
-        if(world.isRemote() || !(world instanceof ServerWorld)) {
+        if (world.isRemote() || !(world instanceof ServerWorld)) {
             return;
         }
         NBTSaver saver = NBTSaver.get((ServerWorld)world);
         CompoundNBT data = new CompoundNBT();
         CompoundNBT items = new CompoundNBT();
-        for(Map.Entry<Integer, CompoundNBT> entry : digital_items.entrySet()) {
+        for (Map.Entry<Integer, CompoundNBT> entry : digital_items.entrySet()) {
             items.put(entry.getKey().toString(), entry.getValue());
         }
         data.put("items", items);
@@ -78,7 +78,7 @@ public class DigitalItems {
     }
 
     public static int doubleWholeCheck(double d, String errorMsg) throws LuaException {
-        if(Math.floor(d) == d) {
+        if (Math.floor(d) == d) {
             return (int)d;
         }
         throw new LuaException(errorMsg);
