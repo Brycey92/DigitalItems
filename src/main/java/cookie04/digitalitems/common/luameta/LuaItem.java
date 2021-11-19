@@ -13,24 +13,29 @@ import java.util.*;
 
 public class LuaItem {
     public static Map<String, Object> get(ItemStack stack) {
-        if(stack.isEmpty())
+        if (stack.isEmpty())
             return Collections.emptyMap();
         HashMap<String, Object> data = new HashMap<>();
+
         data.put("displayName", stack.getDisplayName().getString());
         data.put("rawName", stack.getTranslationKey());
         data.put("count", stack.getCount());
         data.put("maxCount", stack.getMaxStackSize());
         data.put("damage", stack.getDamage());
         data.put("maxDamage", stack.getMaxDamage());
-        HashMap<String, Integer> enchants = new HashMap<>();
-        for(Map.Entry<Enchantment, Integer> enchant : EnchantmentHelper.deserializeEnchantments(stack.getEnchantmentTagList()).entrySet()) {
-            enchants.put(enchant.getKey().getName(), enchant.getValue());
-        }
-        data.put("enchants", enchants);
         data.put("repairCost", stack.getRepairCost());
         data.put("useAction", stack.getUseAction().toString());
         data.put("useDuration", stack.getUseDuration());
         data.put("burnTime", stack.getBurnTime());
+        data.put("itemEnchantability", stack.getItemEnchantability());
+        data.put("xpRepairRatio", stack.getXpRepairRatio());
+
+        HashMap<String, Integer> enchants = new HashMap<>();
+        for (Map.Entry<Enchantment, Integer> enchant : EnchantmentHelper.deserializeEnchantments(stack.getEnchantmentTagList()).entrySet()) {
+            enchants.put(enchant.getKey().getName(), enchant.getValue());
+        }
+        data.put("enchants", enchants);
+
         HashMap<String, HashMap<String, Double>> attributes = new HashMap<>();
         attributes.put("mainhand", addAttributesOfEquipSlot(stack, EquipmentSlotType.MAINHAND));
         attributes.put("offhand", addAttributesOfEquipSlot(stack, EquipmentSlotType.OFFHAND));
@@ -39,23 +44,23 @@ public class LuaItem {
         attributes.put("legs", addAttributesOfEquipSlot(stack, EquipmentSlotType.LEGS));
         attributes.put("feet", addAttributesOfEquipSlot(stack, EquipmentSlotType.FEET));
         data.put("attributes", attributes);
-        data.put("itemEnchantability", stack.getItemEnchantability());
+
         ArrayList<String> toolTypes = new ArrayList<>();
-        for(ToolType type : stack.getToolTypes()) {
+        for (ToolType type : stack.getToolTypes()) {
             toolTypes.add(type.toString());
         }
         data.put("toolTypes", toolTypes);
-        data.put("xpRepairRatio", stack.getXpRepairRatio());
+
         return data;
     }
 
     private static HashMap<String, Double> addAttributesOfEquipSlot(ItemStack stack, EquipmentSlotType type) {
         HashMap<String, Double> toReturn = new HashMap<>();
         Multimap<Attribute, AttributeModifier> attributes = stack.getAttributeModifiers(type);
-        if(attributes.isEmpty()) {
+        if (attributes.isEmpty()) {
             return toReturn;
         }
-        for(Map.Entry<Attribute, AttributeModifier> entry : attributes.entries()) {
+        for (Map.Entry<Attribute, AttributeModifier> entry : attributes.entries()) {
             AttributeModifier mod = entry.getValue();
             toReturn.put(mod.getName(), mod.getAmount());
         }

@@ -23,14 +23,12 @@ public class NBTSaver extends WorldSavedData implements Supplier {
     }
 
     @Override
-    public CompoundNBT write(CompoundNBT nbt)
-    {
+    public CompoundNBT write(CompoundNBT nbt) {
         nbt.put("DigitalItems", data);
         return nbt;
     }
 
-    public static NBTSaver get(ServerWorld world)
-    {
+    public static NBTSaver get(ServerWorld world) {
         return (NBTSaver) world.getSavedData().getOrCreate(new NBTSaver(), DigitalItems.MOD_ID);
     }
 
